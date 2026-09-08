@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git branch --show-current)",
+      "Bash(git log *)",
+      "Bash(git diff *)"
+    ],
+    "deny": []
+  },
+  "enabledPlugins": {
+    "cc@claude-tools": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-tools": {
+      "source": {
+        "source": "github",
+        "repo": "KonH/ClaudeTools"
+      }
+    }
+  }
+}
