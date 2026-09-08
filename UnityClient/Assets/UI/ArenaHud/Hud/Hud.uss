@@ -1,0 +1,40 @@
+.hud-root {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.hud-panel {
+	position: absolute;
+	left: 12px;
+	top: 12px;
+	width: 330px;
+	max-width: 92%;
+}
+
+.hud-player-name {
+	margin-bottom: 6px;
+}
+
+.hud-value {
+	margin-top: 2px;
+}
+
+.hud-time {
+	margin-top: 5px;
+	margin-bottom: 8px;
+}
+
+.hud-instruction {
+	white-space: normal;
+	margin-top: 2px;
+}
+
+.hud-debug {
+	position: absolute;
+	left: 12px;
+	bottom: 8px;
+	white-space: normal;
+}

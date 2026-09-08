@@ -5,3 +5,12 @@ Thumbs.db
 # Editor junk
 .vs/
 .idea/
+
+# .NET
+[Bb]in/
+[Oo]bj/
+*.user
+
+# Node
+node_modules/
+dist/

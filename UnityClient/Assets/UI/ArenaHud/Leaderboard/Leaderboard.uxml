@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Shared.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Leaderboard/Leaderboard.uss" />
+	<ui:VisualElement name="leaderboard-root" class="leaderboard-root" picking-mode="Ignore">
+		<ui:VisualElement name="leaderboard-panel" class="arena-panel leaderboard-panel" picking-mode="Position">
+			<ui:Label text="Leaderboard" class="arena-title leaderboard-title" />
+			<ui:VisualElement class="leaderboard-row leaderboard-header">
+				<ui:Label text="Name" class="leaderboard-cell leaderboard-cell--name" />
+				<ui:Label text="Kills" class="leaderboard-cell leaderboard-cell--kills" />
+				<ui:Label text="Deaths" class="leaderboard-cell leaderboard-cell--deaths" />
+				<ui:Label text="Status" class="leaderboard-cell leaderboard-cell--status" />
+				<ui:Label text="IP" class="leaderboard-cell leaderboard-cell--ip" />
+				<ui:Label text="Client" class="leaderboard-cell leaderboard-cell--client" />
+				<ui:Label text="Ping" class="leaderboard-cell leaderboard-cell--ping" />
+			</ui:VisualElement>
+			<ui:ScrollView name="leaderboard-rows" class="arena-scroll-view leaderboard-rows" mode="Vertical" />
+		</ui:VisualElement>
+	</ui:VisualElement>
+</ui:UXML>

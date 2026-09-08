@@ -1,0 +1,25 @@
+{
+	"name": "MultiplayerDemo.Client",
+	"rootNamespace": "MultiplayerDemo.Client",
+	"references": [
+		"Unity.Entities",
+		"Unity.Transforms",
+		"Unity.Entities.Hybrid",
+		"Unity.Entities.Graphics",
+		"Unity.Mathematics",
+		"Unity.Mathematics.Extensions",
+		"Unity.Collections",
+		"Unity.Burst",
+		"Unity.InputSystem",
+		"Unity.RenderPipelines.Universal.Runtime"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [],
+	"noEngineReferences": false
+}

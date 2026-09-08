@@ -1,0 +1,64 @@
+.connect-root {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	align-items: center;
+}
+
+.connect-panel {
+	width: 460px;
+	max-width: 92%;
+	max-height: 86%;
+	margin-top: 60px;
+}
+
+.connect-title {
+	margin-bottom: 12px;
+}
+
+.connect-field-label {
+	margin-bottom: 4px;
+}
+
+.connect-field-label--spaced {
+	margin-top: 10px;
+}
+
+.connect-field {
+	width: 100%;
+}
+
+.connect-button {
+	margin-top: 14px;
+}
+
+.discovery-title {
+	margin-top: 18px;
+	margin-bottom: 8px;
+}
+
+.server-list {
+	width: 100%;
+}
+
+.server-list-empty {
+	margin-top: 3px;
+	margin-bottom: 5px;
+}
+
+.server-list-button {
+	width: 100%;
+	margin-bottom: 5px;
+	-unity-text-align: middle-left;
+}
+
+.refresh-button {
+	margin-top: 5px;
+}
+
+.connect-status {
+	margin-top: 14px;
+	white-space: normal;
+}

@@ -1,0 +1,84 @@
+.leaderboard-root {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.leaderboard-panel {
+	width: 760px;
+	max-width: 96%;
+	max-height: 76%;
+	margin-top: 10%;
+}
+
+.leaderboard-title {
+	margin-bottom: 10px;
+}
+
+.leaderboard-row {
+	width: 100%;
+	min-height: 25px;
+	flex-direction: row;
+	align-items: center;
+}
+
+.leaderboard-row--alternate {
+	background-color: rgba(80, 135, 170, 0.13);
+}
+
+.leaderboard-header {
+	border-bottom-color: var(--arena-panel-border);
+	border-bottom-width: 1px;
+	margin-bottom: 3px;
+}
+
+.leaderboard-header .leaderboard-cell {
+	color: var(--arena-accent);
+	-unity-font-style: bold;
+}
+
+.leaderboard-cell {
+	color: var(--arena-text-secondary);
+	font-size: 13px;
+	padding-left: 3px;
+	padding-right: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.leaderboard-cell--name {
+	width: 24%;
+}
+
+.leaderboard-cell--kills {
+	width: 8%;
+}
+
+.leaderboard-cell--deaths {
+	width: 9%;
+}
+
+.leaderboard-cell--status {
+	width: 15%;
+}
+
+.leaderboard-cell--ip {
+	width: 20%;
+}
+
+.leaderboard-cell--client {
+	width: 12%;
+}
+
+.leaderboard-cell--ping {
+	width: 12%;
+}
+
+.leaderboard-rows {
+	max-height: 480px;
+}
