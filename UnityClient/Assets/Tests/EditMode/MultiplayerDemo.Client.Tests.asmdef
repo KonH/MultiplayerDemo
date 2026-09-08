@@ -1,0 +1,30 @@
+{
+	"name": "MultiplayerDemo.Client.Tests",
+	"rootNamespace": "MultiplayerDemo.Client.Tests",
+	"references": [
+		"MultiplayerDemo.Client",
+		"UnityEngine.TestRunner",
+		"UnityEditor.TestRunner",
+		"Unity.Mathematics",
+		"Unity.Entities",
+		"Unity.InputSystem",
+		"Unity.Collections",
+		"Unity.Transforms",
+		"Unity.Burst"
+	],
+	"includePlatforms": [
+		"Editor"
+	],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": true,
+	"precompiledReferences": [
+		"nunit.framework.dll"
+	],
+	"autoReferenced": false,
+	"defineConstraints": [
+		"UNITY_INCLUDE_TESTS"
+	],
+	"versionDefines": [],
+	"noEngineReferences": false
+}
