@@ -1,99 +1,181 @@
 # Plan — Multiplayer Arena Demo
 
-Spec: `spec.md`. Wire contract: `protocol.md` (frozen before any client work starts).
+## Spec
 
-## Constitution check
+Source: `spec.md`. Wire contract: `protocol.md` (already frozen).
 
-| Principle | How this plan complies |
-|---|---|
-| URP only | Unity client creates its runtime material from `Universal Render Pipeline/Lit`. No Built-in RP shaders. |
-| DOTS for gameplay | Unity client keeps world state in ECS components and drives it with `ISystem` systems in a runtime-created `World`. MonoBehaviours only bootstrap the world, poll input and draw IMGUI. |
-| No `FindObjectOfType` / mutable statics | The bootstrap MonoBehaviour is the composition root: it creates the connection, injects it into the ECS world as a managed singleton component. |
-| Plan before implement | This file. |
-| Spec before plan | `spec.md`. |
-| `docs/specs/<YY_MM_DD_HH>_<name>/` | `docs/specs/26_09_08_09_multiplayer_arena/`. |
-| C# style: tabs, `_` privates, always braces, no redundant modifiers | Enforced by `.editorconfig` at the repo root, applied to both the server and the Unity client. |
+The feature remains a never-ending, server-authoritative top-down arena rendered by a
+Unity 3D client and a TypeScript Web client. Clients send input and present authoritative
+snapshots; movement, collision, damage, death, respawn and scoring remain server-owned.
+The Unity client must support standalone and WebGL and must present its connect screen,
+HUD and TAB leaderboard with Unity UI Toolkit exclusively.
 
-## Repository layout
+Acceptance remains unchanged: server discovery and connection work; Unity and Web clients
+observe the same movement, collision, shots, health, death, respawn, roster and elapsed
+time; server rules and the two-bot kill flow remain automated; the Unity UI shows HP,
+cooldown, respawn countdown, timer, connection errors and every leaderboard column.
 
+## Goal
+
+Replace the already-implemented Unity client's `ArenaHud.OnGUI`/`GUILayout` presentation
+with an authored UI Toolkit surface without changing networking, ECS gameplay state,
+input behavior, discovery, protocol, rendering, or Web client/server behavior.
+
+## Current state
+
+- Server, Web client, wire protocol, runtime-created Unity DOTS world, transports,
+  discovery, input, interpolation and URP rendering are implemented.
+- `ArenaClientBootstrap` currently creates and binds `ArenaHud` at runtime.
+- `ArenaHud` currently implements the connect screen, playing HUD and leaderboard in
+  IMGUI; `ArenaFormat` and input-vector behavior already have EditMode coverage.
+- `Arena.unity` has the bootstrap but no authored UI Toolkit panel, and
+  `UnityClient/README.md` still documents the UI as IMGUI and asset-free.
+
+## Approach
+
+### UI assets and composition
+
+Create one authored `PanelSettings` asset and one `PanelRenderer` in `Arena.unity`. Its
+single root `ArenaHud.uxml` composes three named templates: connect, in-game HUD and
+leaderboard. The root switches those templates with `display: none/flex`; no additional
+panels or sorting layers are needed.
+
+Organize assets under `UnityClient/Assets/UI/ArenaHud/`:
+
+```text
+ArenaHudPanelSettings.asset
+ArenaHud.uxml                 root document and template composition
+ArenaHud.uss                  full-screen/root and template-instance positioning
+Shared.uss                    shared colours, typography, panels and controls
+Connect/Connect.uxml
+Connect/Connect.uss           connect layout
+Hud/Hud.uxml
+Hud/Hud.uss                   in-game HUD layout
+Leaderboard/Leaderboard.uxml
+Leaderboard/Leaderboard.uss  overlay/table layout
 ```
-Server/
-  MultiplayerDemo.sln
-  MultiplayerDemo.Server/         ASP.NET Core (net9.0) — WebSocket + HTTP + UDP beacon
-  MultiplayerDemo.Core/           Pure simulation, no I/O — unit-testable
-  MultiplayerDemo.Tests/          xUnit tests over MultiplayerDemo.Core
-WebClient/                        Vite + TypeScript, 2D canvas client
-  tools/bot.ts                    Headless bot client used by the integration test
-UnityClient/Assets/Scripts/       Unity DOTS client
-docs/specs/26_09_08_09_multiplayer_arena/
-```
 
-## Design decisions
+Every UXML imports `Shared.uss` before its own local USS. The root also imports the three
+template USS files so rows created dynamically in C# resolve their classes against the
+owning document. Root-level positioning stays in `ArenaHud.uss`; reusable visual styling
+stays in `Shared.uss`; template-specific layout stays in the corresponding template USS.
+Use UI Toolkit controls and `VisualElement`s only—no IMGUI, Canvas, uGUI or TextMesh Pro
+UI components.
 
-1. **WebSocket + JSON.** The only transport all three runtimes share (native C#, browser
-   TS, Unity WebGL). JSON keeps the contract debuggable; payloads are tiny at these
-   player counts.
-2. **Simulation split into `MultiplayerDemo.Core`** — `Arena`, `SimPlayer`, `SimBullet`,
-   `GameSim.Tick(dt)` — with zero networking. Every rule in FR-3..FR-5 is then a plain
-   unit test.
-3. **No client-side prediction.** Clients render the authoritative snapshot with a short
-   interpolation buffer. Simpler, always consistent; acceptable for LAN/localhost.
-4. **Unity client builds its world at runtime** (no subscenes, no baked prefabs, no
-   `.unity` scene edits, IMGUI for UI). The project can therefore be built and reviewed
-   without an Editor session authoring assets, and the DOTS code stays the only source
-   of truth for gameplay state.
-5. **Discovery is two-pronged** because browsers cannot receive UDP: beacon for native,
-   `/api/info` port probing for browsers. Both clients also accept a typed address.
+### Binding, view and state flow
 
-## Work breakdown
+- Replace `ArenaHud` with `ArenaHudDocument`, a binding MonoBehaviour requiring the one
+  `PanelRenderer`. It registers/unregisters the UI reload callback, constructs the view
+  from the supplied root, owns player-name/address change, connect, refresh and
+  server-selection callbacks, and refreshes from the current client state. Text changes
+  update the bootstrap immediately; projected text is applied with
+  `SetValueWithoutNotify` so per-frame refresh cannot erase typing or recurse through
+  change callbacks. Register clicks with a project-local pointer-up helper
+  suitable for Unity 6000.5.5f1 rather than depending on `GlobalStrategy` code or the
+  unreliable `Button.clicked` path documented there.
+- Add a plain C# `ArenaHudView` that queries named elements, updates fields and visibility
+  from a passed presentation state, and renders discovered-server and leaderboard rows.
+  It has no networking, ECS queries, scene lookup or dependency resolution.
+- Add a pure UI state projection model/function between runtime data and the view. It
+  converts connection status, player/health/cooldown/respawn/time, discovery results,
+  debug counts and roster entries into display-ready state while retaining `ArenaFormat`
+  for time/countdown formatting.
+- Keep `ArenaClientBootstrap` as the composition root. Give it an explicit serialized
+  `ArenaHudDocument` reference, call `Bind(this)` during bootstrap, and remove the runtime
+  `AddComponent<ArenaHud>()`. The document may read only the public client-facing state
+  and methods already supplied by the bootstrap/link; no `FindObjectOfType`, static
+  mutable singleton or global scene lookup is introduced.
+- Preserve `ArenaInput`: TAB continues to toggle `ShowLeaderboard`, and WASD/arrows plus
+  LMB/Space continue to feed ECS only while playing. Add a project-local UI pointer query
+  over the visible connect/HUD/leaderboard blocking roots, and pass that result into
+  `ArenaInput` so LMB is suppressed over UI while Space remains unchanged. Do not use
+  `EventSystem.current.IsPointerOverGameObject()` or treat the full-screen document root
+  as blocking. Hidden templates use `display: none` so they do not remain in the picking
+  tree.
 
-### Phase 1 — Server (sequential, blocks both clients)
-1. `.editorconfig`, `.gitignore` additions, solution + three projects.
-2. `MultiplayerDemo.Core`: arena clamp, circle-vs-circle separation, input →
-   movement, fire cooldown, projectile integration + hit resolution, death,
-   respawn timer, free-spot search, kill/death counters, elapsed clock.
-3. `MultiplayerDemo.Tests`: unit tests for every rule above (acceptance criterion 8).
-4. `MultiplayerDemo.Server`: Kestrel host, `/api/info`, `/ws` session handling
-   (join validation, name reuse, input intake, snapshot + roster broadcast, ping/pong,
-   disconnect → `connected:false`), UDP beacon, static file hosting for the Web client.
-5. Verify: `dotnet test`, then start the server and hit `/api/info`.
+### Reference boundary
 
-### Phase 2 — Clients (parallel, one subagent each)
-Both agents work against the frozen `protocol.md` and a running server.
+Use these `GlobalStrategy` files as implementation references only; do not copy assembly
+dependencies, styles, VContainer services or runtime code into MultiplayerDemo:
 
-**2a Web client** (`WebClient/`)
-- Vite + TS, no framework. Connect screen (name + address + discovered list + refresh).
-- Canvas renderer: arena bounds, own player green, others red, name labels, bullets.
-- HUD: HP, cooldown bar, respawn countdown, elapsed timer; TAB leaderboard overlay.
-- Input: WASD/arrows, LMB/Space to fire, sent at ≤60 Hz.
-- Tests: vitest over pure modules (interpolation, input vector, formatting) plus
-  `tools/bot.ts` headless client.
+- `.claude/rules/unity/uitoolkit.md`
+- `.claude/rules/unity/ui_implementation.md`
+- `Assets/Scripts/Unity/UI/MainMenuDocument.cs`
+- `Assets/Scripts/Unity/UI/MainMenuView.cs`
+- `Assets/UI/Modal/MainMenu/MainMenu.uxml`
+- `Assets/UI/Modal/MainMenu/MainMenu.uss`
 
-**2b Unity client** (`UnityClient/Assets/Scripts/`)
-- `ArenaClientBootstrap` MonoBehaviour: composition root, owns the WebSocket connection
-  (native `ClientWebSocket`; `jslib` bridge for WebGL), creates the ECS world contents.
-- ECS: `PlayerId`, `NetPosition`, `RenderPos`, `Health`, `LocalPlayerTag`, `BulletTag`,
-  `ArenaConfig`, `NetSnapshot` (managed singleton) components; systems for applying
-  snapshots, spawning/despawning entities, interpolating and writing `LocalTransform`.
-- Rendering: `RenderMeshUtility.AddComponents` with runtime cube meshes + URP Lit
-  materials (green / red / yellow bullet), plus a scaled plane for the arena.
-- UI: IMGUI overlay — connect screen, HP, cooldown, respawn, timer, TAB leaderboard.
-- Tests: Unity Test Framework EditMode tests over the pure protocol parsing/interp code.
+The applicable patterns are root UXML composition, shared/local USS separation,
+`PanelRenderer.RegisterUIReloadCallback`, binding-MonoBehaviour lifecycle, and a plain C#
+view. `GlobalStrategy` remains a separate project and is not a package or asset source.
 
-### Phase 3 — Integration (sequential, main session)
-1. Start the server.
-2. Run the two-bot headless test: both bots join, observe each other, one kills the
-   other, assert kill/death/respawn (acceptance criterion 9).
-3. Drive the real Web client in a browser; run a second Web client tab to prove
-   two clients from one machine (criteria 2–7).
-4. Unity client: compile and play-mode check via Unity MCP if an Editor is available;
-   otherwise document the exact steps and leave the code review-ready.
-5. Root `README.md`: how to run server, Web client, Unity client.
+## Agent Steps
+
+- [ ] **Add pure presentation state and tests first** — Define display-ready connect,
+  HUD, discovery and roster state plus a projector; extend formatting/state tests for
+  disconnected, connecting, rejected, failed, playing, alive, dead, cooldown-ready,
+  leaderboard-visible and local-player-row cases, plus pointer-over-UI mouse-fire
+  suppression and unchanged keyboard-fire behavior.
+- [ ] **Author the UI Toolkit asset tree** — Create the shared/root USS, root UXML and
+  connect/HUD/leaderboard UXML+USS templates with stable names for every queried control,
+  label, list container and visibility root; create the single scaled `PanelSettings`.
+- [ ] **Implement and test the plain view** — Add `ArenaHudView`, render projected state
+  into a cloned UI tree, update dynamic discovery/roster rows without leaking stale rows,
+  and add EditMode assertions for visibility, text, columns, selection and callback
+  controls.
+- [ ] **Implement the document binding** — Replace `ArenaHud` with
+  `ArenaHudDocument`; own reload/lifecycle and UI callbacks, bind/rebind safely after a UI
+  reload, and refresh the view from authoritative client/ECS/discovery state.
+- [ ] **Wire the composition root and scene** — Update `ArenaClientBootstrap` to bind its
+  serialized document explicitly; update `Arena.unity` with one UI object containing the
+  one `PanelRenderer`, `ArenaHudDocument`, root UXML and `ArenaHudPanelSettings`; remove all
+  runtime IMGUI creation and ensure no `OnGUI`, `GUILayout`, Canvas or uGUI remains.
+- [ ] **Update Unity client documentation** — Revise `UnityClient/README.md` structure,
+  asset-authorship statement, tests and build notes to describe UI Toolkit, the one-panel
+  architecture and unchanged standalone/WebGL controls.
+- [ ] **Run automated regression checks** — Run Unity EditMode tests, server unit tests,
+  Web client tests/build and the existing live two-bot integration test; resolve only
+  regressions introduced by the UI migration.
+- [ ] **Verify in live Unity targets** — In Unity 6000.5.5f1, confirm a clean compile and
+  Play Mode connection/discovery flow, readable rejection/failure state, responsive HUD,
+  HP/cooldown/death/respawn/timer updates, TAB leaderboard rows, window resizing and no
+  console errors; make and run a standalone build, then make a WebGL build and verify the
+  same UI flow and browser WebSocket/HTTP discovery compatibility.
+
+## User Steps
+
+None. The agent performs Editor, standalone and WebGL verification through the available
+Unity/browser tooling; if a required Editor or browser target is unavailable, the agent
+must report the unverified item rather than treating it as passed.
+
+## Tests
+
+- **Pure EditMode:** retain `ArenaFormat` and input-vector coverage; add UI projection
+  tests for every connection/play state, elapsed/cooldown/respawn formatting, discovered
+  servers, roster columns/status/ping, local-player marking and leaderboard visibility.
+- **UI tree EditMode:** clone `ArenaHud.uxml`, construct `ArenaHudView`, refresh with
+  representative states and assert template visibility, label/field values, dynamic row
+  replacement, all seven leaderboard columns, server selection and refresh callbacks,
+  plus that edited name/address values survive refresh and are the values passed to
+  Connect.
+- **Unity integration:** compile/reload the document, run all EditMode tests, exercise
+  Play Mode against a live server, then validate standalone and WebGL builds for the same
+  connect/HUD/leaderboard behavior.
+- **Cross-project regression:** run `dotnet test Server/MultiplayerDemo.sln`, Web client
+  unit/build checks, and the two-bot live kill/respawn test to demonstrate that the UI-only
+  migration did not change the authoritative feature.
 
 ## Risks
 
-- **No Unity Editor is currently running**, so the Unity client cannot be compile-checked
-  in this session. Mitigation: keep the Unity client asset-free and code-only, and target
-  the exact `com.unity.entities@1.4` API surface. Flag clearly if it stays unverified.
-- **Unity WebGL WebSockets** need a `jslib` bridge; the native path uses
-  `ClientWebSocket`. Both live behind one `IArenaConnection` interface.
+- UI Toolkit asset references and scene YAML are easiest to validate through a live Unity
+  import; compilation alone does not prove UXML template paths or serialized references.
+- Per-frame network/ECS changes require refreshes, but dynamic server/roster rows should
+  be rebuilt only when their projected values change to avoid unnecessary allocations.
+- WebGL must not acquire editor-only APIs through view tests or runtime code; keep
+  `AssetDatabase` use confined to Editor tests and retain the existing transport split.
+
+## Constitution Check
+
+No conflicts found — plan aligns with all principles.
+
+Use the implement skill to start working on the plan or request changes.

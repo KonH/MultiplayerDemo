@@ -5,7 +5,8 @@
 A never-ending top-down deathmatch arena. One authoritative C# server holds the single
 source of truth. Two independent clients render the same world:
 
-- **Unity client** — 3D, DOTS/ECS gameplay representation, standalone + WebGL builds.
+- **Unity client** — 3D, DOTS/ECS gameplay representation, Unity UI Toolkit interface,
+  standalone + WebGL builds.
 - **Web client** — 2D canvas, TypeScript, browser.
 
 Clients are *view + input* only. All simulation, collision, damage, respawn and scoring
@@ -61,6 +62,23 @@ happen on the server. Any number of clients (including several on one machine, a
 ### FR-7 Match timer
 - The game never ends. A human-readable elapsed timer (`HH:MM:SS`) since server start is
   always visible.
+
+## Unity client UI architecture
+
+The Unity client's connect screen, in-game HUD and TAB leaderboard use Unity UI Toolkit
+exclusively, following the established `GlobalStrategy` project pattern:
+
+- UI structure and styling are authored as UXML and USS assets under `UnityClient/Assets/UI/`.
+- A `PanelSettings` asset supplies the shared panel configuration, and scene UI is rendered
+  through `PanelRenderer`. If the HUD and leaderboard are separate surfaces, their draw order
+  is set explicitly with integer `PanelRenderer.sortingOrder` values.
+- Each UI surface has a binding MonoBehaviour that owns lifecycle and event subscriptions,
+  registers for UI reloads, queries the named root element, and passes current client state to
+  a plain C# view object. The view owns VisualElement queries and presentation updates, and has
+  no networking, ECS, scene lookup or dependency-resolution responsibility.
+- The UI reflects the existing authoritative client/ECS state; it does not introduce client-side
+  gameplay state or simulation.
+- IMGUI (`OnGUI`/`GUILayout`) and Canvas-based uGUI are not used for the Unity client UI.
 
 ## Acceptance criteria
 
