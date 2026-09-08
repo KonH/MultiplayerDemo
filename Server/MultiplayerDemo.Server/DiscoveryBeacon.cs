@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -30,7 +31,6 @@ public sealed class DiscoveryBeacon : BackgroundService {
 			_logger.LogWarning(e, "Broadcast unavailable; LAN discovery is disabled");
 			return;
 		}
-		var endpoint = new IPEndPoint(IPAddress.Broadcast, BeaconPort);
 		using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
 		while ( await timer.WaitForNextTickAsync(stoppingToken) ) {
 			var payload = JsonSerializer.Serialize(new BeaconMessage {
@@ -39,11 +39,54 @@ public sealed class DiscoveryBeacon : BackgroundService {
 				Players = _arena.ConnectedCount
 			});
 			var bytes = Encoding.UTF8.GetBytes(payload);
-			try {
-				await client.SendAsync(bytes, bytes.Length, endpoint);
-			} catch ( SocketException ) {
-				// A missing route or a sleeping adapter is not worth killing the server over.
+			foreach ( var target in BroadcastTargets() ) {
+				try {
+					await client.SendAsync(bytes, bytes.Length, target);
+				} catch ( SocketException ) {
+					// A missing route or a sleeping adapter is not worth killing the server over.
+				}
 			}
 		}
+	}
+
+	/// <summary>
+	/// A single send to 255.255.255.255 leaves on whichever interface the routing table picks,
+	/// which on a machine with virtual adapters is rarely the LAN one. Send a directed broadcast
+	/// per interface instead, plus loopback so clients on this machine always see the server.
+	/// </summary>
+	static IEnumerable<IPEndPoint> BroadcastTargets() {
+		yield return new IPEndPoint(IPAddress.Loopback, BeaconPort);
+		yield return new IPEndPoint(IPAddress.Broadcast, BeaconPort);
+		foreach ( var adapter in NetworkInterface.GetAllNetworkInterfaces() ) {
+			if ( (adapter.OperationalStatus != OperationalStatus.Up) ||
+				(adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) ) {
+				continue;
+			}
+			foreach ( var unicast in adapter.GetIPProperties().UnicastAddresses ) {
+				if ( unicast.Address.AddressFamily != AddressFamily.InterNetwork ) {
+					continue;
+				}
+				var broadcast = DirectedBroadcast(unicast.Address, unicast.IPv4Mask);
+				if ( broadcast != null ) {
+					yield return new IPEndPoint(broadcast, BeaconPort);
+				}
+			}
+		}
+	}
+
+	static IPAddress? DirectedBroadcast(IPAddress address, IPAddress? mask) {
+		if ( mask == null ) {
+			return null;
+		}
+		var addressBytes = address.GetAddressBytes();
+		var maskBytes = mask.GetAddressBytes();
+		if ( addressBytes.Length != maskBytes.Length ) {
+			return null;
+		}
+		var result = new byte[addressBytes.Length];
+		for ( var i = 0; i < result.Length; i++ ) {
+			result[i] = (byte)(addressBytes[i] | ~maskBytes[i]);
+		}
+		return new IPAddress(result);
 	}
 }

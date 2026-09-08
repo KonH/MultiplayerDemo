@@ -7,8 +7,11 @@ Encoding: **JSON**, one message per WebSocket text frame. Every message has a `t
 Field names are short because snapshots are sent 30x/second.
 
 Coordinates are server-space: `x` right, `y` "up the screen".
-- Web client: `screenX = (x - arenaMinX) * scale`, `screenY = (y - arenaMinY) * scale`.
-- Unity client: `worldPos = (x, 0.5, y)` — server `y` maps to Unity `z`.
+- Web client: `screenX = (x - arenaMinX) * scale`, `screenY = (arenaMaxY - y) * scale`.
+  Canvas Y grows downward, so it must be flipped: server `+y` has to appear *up* the
+  screen, matching the input rule that pressing W sends `my = +1`.
+- Unity client: `worldPos = (x, 0.5, y)` — server `y` maps to Unity `z`. With a top-down
+  camera looking along `-Y` and its `up` along `+Z`, server `+y` is also up the screen.
 
 ## HTTP
 

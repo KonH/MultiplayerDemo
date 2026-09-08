@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Arena — Web Client</title>
+		<link rel="icon" href="data:," />
+		<link rel="stylesheet" href="/src/style.css" />
+	</head>
+	<body>
+		<canvas id="view"></canvas>
+
+		<div id="hud" hidden>
+			<div class="hud-panel hud-left">
+				<div class="hud-row">
+					<span class="hud-label">HP</span>
+					<span id="hp-text" class="hud-value">0 / 0</span>
+				</div>
+				<div class="bar"><div id="hp-bar" class="bar-fill hp"></div></div>
+				<div class="hud-row">
+					<span class="hud-label">FIRE</span>
+					<span id="cooldown-text" class="hud-value">ready</span>
+				</div>
+				<div class="bar"><div id="cooldown-bar" class="bar-fill cd"></div></div>
+				<div class="hud-row muted">
+					<span id="connection-state">connecting</span>
+				</div>
+			</div>
+			<div class="hud-panel hud-right">
+				<div id="timer" class="timer">00:00:00</div>
+				<div class="muted">TAB — leaderboard</div>
+			</div>
+			<div id="respawn" class="respawn" hidden></div>
+			<div id="leaderboard" class="leaderboard" hidden>
+				<h2>Leaderboard</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Kills</th>
+							<th>Deaths</th>
+							<th>Status</th>
+							<th>IP</th>
+							<th>Client</th>
+							<th>Ping</th>
+						</tr>
+					</thead>
+					<tbody id="leaderboard-body"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id="connect" class="connect">
+			<form id="connect-form" class="card">
+				<h1>Arena</h1>
+				<label for="name">Name</label>
+				<input id="name" name="name" maxlength="20" minlength="1" required autocomplete="off" placeholder="1-20 characters" />
+				<label for="address">Server</label>
+				<input id="address" name="address" autocomplete="off" placeholder="localhost:8080" />
+				<button id="connect-button" type="submit">Connect</button>
+				<p id="connect-error" class="error" hidden></p>
+				<div class="discovery">
+					<div class="discovery-head">
+						<span>Discovered servers</span>
+						<button id="refresh" type="button">Refresh</button>
+					</div>
+					<ul id="server-list" class="server-list">
+						<li class="muted">Scanning…</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
