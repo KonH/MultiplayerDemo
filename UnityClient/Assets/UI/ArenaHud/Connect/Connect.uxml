@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Shared.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Connect/Connect.uss" />
+	<ui:VisualElement name="connect-root" class="connect-root" picking-mode="Ignore">
+		<ui:ScrollView name="connect-panel" class="arena-panel arena-scroll-view connect-panel" mode="Vertical" picking-mode="Position">
+			<ui:Label text="Multiplayer Arena" class="arena-title connect-title" />
+			<ui:Label text="Player name" class="arena-label connect-field-label" />
+			<ui:TextField name="player-name-field" class="arena-field connect-field" max-length="20" />
+			<ui:Label text="Server address (host:port)" class="arena-label connect-field-label connect-field-label--spaced" />
+			<ui:TextField name="address-field" class="arena-field connect-field" max-length="128" />
+			<ui:Button name="connect-button" text="Connect" class="arena-button connect-button" />
+			<ui:Label name="discovery-description-label" text="Discovered servers" class="arena-section-title discovery-title" />
+			<ui:VisualElement name="server-list" class="server-list" />
+			<ui:Button name="refresh-button" text="Refresh list" class="arena-button refresh-button" />
+			<ui:Label name="connect-status-label" text="Not connected" class="arena-label connect-status" />
+		</ui:ScrollView>
+	</ui:VisualElement>
+</ui:UXML>

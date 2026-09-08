@@ -111,29 +111,29 @@ view. `GlobalStrategy` remains a separate project and is not a package or asset 
 
 ## Agent Steps
 
-- [ ] **Add pure presentation state and tests first** — Define display-ready connect,
+- [x] **Add pure presentation state and tests first** — Define display-ready connect,
   HUD, discovery and roster state plus a projector; extend formatting/state tests for
   disconnected, connecting, rejected, failed, playing, alive, dead, cooldown-ready,
   leaderboard-visible and local-player-row cases, plus pointer-over-UI mouse-fire
   suppression and unchanged keyboard-fire behavior.
-- [ ] **Author the UI Toolkit asset tree** — Create the shared/root USS, root UXML and
+- [x] **Author the UI Toolkit asset tree** — Create the shared/root USS, root UXML and
   connect/HUD/leaderboard UXML+USS templates with stable names for every queried control,
   label, list container and visibility root; create the single scaled `PanelSettings`.
-- [ ] **Implement and test the plain view** — Add `ArenaHudView`, render projected state
+- [x] **Implement and test the plain view** — Add `ArenaHudView`, render projected state
   into a cloned UI tree, update dynamic discovery/roster rows without leaking stale rows,
   and add EditMode assertions for visibility, text, columns, selection and callback
   controls.
-- [ ] **Implement the document binding** — Replace `ArenaHud` with
+- [x] **Implement the document binding** — Replace `ArenaHud` with
   `ArenaHudDocument`; own reload/lifecycle and UI callbacks, bind/rebind safely after a UI
   reload, and refresh the view from authoritative client/ECS/discovery state.
-- [ ] **Wire the composition root and scene** — Update `ArenaClientBootstrap` to bind its
+- [x] **Wire the composition root and scene** — Update `ArenaClientBootstrap` to bind its
   serialized document explicitly; update `Arena.unity` with one UI object containing the
   one `PanelRenderer`, `ArenaHudDocument`, root UXML and `ArenaHudPanelSettings`; remove all
   runtime IMGUI creation and ensure no `OnGUI`, `GUILayout`, Canvas or uGUI remains.
-- [ ] **Update Unity client documentation** — Revise `UnityClient/README.md` structure,
+- [x] **Update Unity client documentation** — Revise `UnityClient/README.md` structure,
   asset-authorship statement, tests and build notes to describe UI Toolkit, the one-panel
   architecture and unchanged standalone/WebGL controls.
-- [ ] **Run automated regression checks** — Run Unity EditMode tests, server unit tests,
+- [x] **Run automated regression checks** — Run Unity EditMode tests, server unit tests,
   Web client tests/build and the existing live two-bot integration test; resolve only
   regressions introduced by the UI migration.
 - [ ] **Verify in live Unity targets** — In Unity 6000.5.5f1, confirm a clean compile and

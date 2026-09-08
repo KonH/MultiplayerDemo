@@ -13,6 +13,7 @@ namespace MultiplayerDemo.Client {
 	[DisallowMultipleComponent]
 	public sealed class ArenaClientBootstrap : MonoBehaviour {
 		[SerializeField] Camera _camera;
+		[SerializeField] ArenaHudDocument _hudDocument;
 		[SerializeField] string _defaultAddress = "localhost:8080";
 		[SerializeField] string _defaultPlayerName = "UnityPlayer";
 		[SerializeField] float _cameraPitch = 78f;
@@ -55,7 +56,7 @@ namespace MultiplayerDemo.Client {
 			_discovery = CreateDiscovery();
 			_discovery.Begin();
 
-			gameObject.AddComponent<ArenaHud>().Bind(this);
+			_hudDocument.Bind(this);
 		}
 
 		void Update() {
@@ -172,7 +173,7 @@ namespace MultiplayerDemo.Client {
 			var state = entityManager.GetComponentData<LocalInputState>(_linkEntity);
 			state.Move = ArenaInput.ReadMove();
 			// Latch the trigger: the send system runs at 30 Hz and would otherwise drop a one-frame tap.
-			state.Fire = state.Fire || ArenaInput.ReadFire();
+			state.Fire = state.Fire || ArenaInput.ReadFire(_hudDocument.IsPointerOverBlockingUi());
 			entityManager.SetComponentData(_linkEntity, state);
 		}
 

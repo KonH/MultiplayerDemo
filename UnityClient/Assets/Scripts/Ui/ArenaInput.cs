@@ -1,4 +1,5 @@
 using Unity.Mathematics;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace MultiplayerDemo.Client.Ui {
@@ -32,12 +33,25 @@ namespace MultiplayerDemo.Client.Ui {
 				keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed);
 		}
 
-		public static bool ReadFire() {
+		/// <summary>
+		/// Keeps keyboard firing independent from UI focus while preventing a pointer click on a visible
+		/// blocking UI region from also firing in the arena.
+		/// </summary>
+		public static bool ShouldFire(bool spacePressed, bool leftButtonPressed, bool pointerOverBlockingUi) {
+			return spacePressed || (leftButtonPressed && !pointerOverBlockingUi);
+		}
+
+		/// <summary>Converts Input System screen coordinates into UI Toolkit's top-left origin.</summary>
+		public static Vector2 BuildPanelScreenPosition(Vector2 screenPosition, float screenHeight) {
+			return new Vector2(screenPosition.x, screenHeight - screenPosition.y);
+		}
+
+		public static bool ReadFire(bool pointerOverBlockingUi = false) {
 			var keyboard = Keyboard.current;
 			var mouse = Mouse.current;
 			var space = (keyboard != null) && keyboard.spaceKey.isPressed;
 			var leftButton = (mouse != null) && mouse.leftButton.isPressed;
-			return space || leftButton;
+			return ShouldFire(space, leftButton, pointerOverBlockingUi);
 		}
 
 		public static bool ReadLeaderboardToggle() {

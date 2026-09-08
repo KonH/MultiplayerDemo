@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+	<ui:Template src="project://database/Assets/UI/ArenaHud/Connect/Connect.uxml" name="Connect" />
+	<ui:Template src="project://database/Assets/UI/ArenaHud/Hud/Hud.uxml" name="Hud" />
+	<ui:Template src="project://database/Assets/UI/ArenaHud/Leaderboard/Leaderboard.uxml" name="Leaderboard" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Shared.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/ArenaHud.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Connect/Connect.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Hud/Hud.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Leaderboard/Leaderboard.uss" />
+	<ui:VisualElement name="arena-hud-root" class="arena-hud-root" picking-mode="Ignore">
+		<ui:Instance template="Connect" name="connect-template" class="arena-template" picking-mode="Ignore" />
+		<ui:Instance template="Hud" name="hud-template" class="arena-template" picking-mode="Ignore" />
+		<ui:Instance template="Leaderboard" name="leaderboard-template" class="arena-template" picking-mode="Ignore" />
+	</ui:VisualElement>
+</ui:UXML>

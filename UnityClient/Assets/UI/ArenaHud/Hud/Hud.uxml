@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Shared.uss" />
+	<ui:Style src="project://database/Assets/UI/ArenaHud/Hud/Hud.uss" />
+	<ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
+		<ui:VisualElement name="hud-panel" class="arena-panel hud-panel" picking-mode="Position">
+			<ui:Label name="hud-player-name-label" text="Player" class="arena-section-title hud-player-name" />
+			<ui:Label name="health-label" text="HP  100 / 100" class="arena-label hud-value" />
+			<ui:Label name="fire-label" text="Fire  ready" class="arena-label hud-value" />
+			<ui:Label name="life-status-label" text="Dead" class="arena-label arena-error-label hud-value" />
+			<ui:Label name="respawn-label" text="Respawn in  0.0s" class="arena-label hud-value" />
+			<ui:Label name="time-label" text="Time  00:00" class="arena-label hud-time" />
+			<ui:Label text="WASD / arrows to move, LMB / Space to fire" class="arena-muted-label hud-instruction" />
+			<ui:Label text="TAB for the leaderboard" class="arena-muted-label hud-instruction" />
+		</ui:VisualElement>
+		<ui:Label name="debug-label" text="players 0   bullets 0   snapshots 0" class="arena-muted-label hud-debug" picking-mode="Ignore" />
+	</ui:VisualElement>
+</ui:UXML>

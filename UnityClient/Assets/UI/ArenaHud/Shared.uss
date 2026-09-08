@@ -1,0 +1,115 @@
+:root {
+	--arena-panel-background: rgba(8, 14, 24, 0.90);
+	--arena-panel-border: rgba(125, 211, 252, 0.72);
+	--arena-control-background: rgba(22, 35, 52, 0.96);
+	--arena-control-hover: rgba(38, 65, 91, 0.98);
+	--arena-control-active: rgba(14, 116, 144, 0.98);
+	--arena-text-primary: rgb(236, 245, 255);
+	--arena-text-secondary: rgb(170, 195, 216);
+	--arena-text-muted: rgb(117, 147, 172);
+	--arena-accent: rgb(103, 232, 249);
+	--arena-error: rgb(255, 128, 128);
+}
+
+.arena-panel {
+	background-color: var(--arena-panel-background);
+	border-left-color: var(--arena-panel-border);
+	border-right-color: var(--arena-panel-border);
+	border-top-color: var(--arena-panel-border);
+	border-bottom-color: var(--arena-panel-border);
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-top-left-radius: 7px;
+	border-top-right-radius: 7px;
+	border-bottom-left-radius: 7px;
+	border-bottom-right-radius: 7px;
+	padding: 14px;
+}
+
+.arena-title {
+	color: var(--arena-text-primary);
+	font-size: 24px;
+	-unity-font-style: bold;
+}
+
+.arena-section-title {
+	color: var(--arena-text-primary);
+	font-size: 16px;
+	-unity-font-style: bold;
+}
+
+.arena-label {
+	color: var(--arena-text-secondary);
+	font-size: 15px;
+}
+
+.arena-muted-label {
+	color: var(--arena-text-muted);
+	font-size: 13px;
+}
+
+.arena-error-label {
+	color: var(--arena-error);
+}
+
+.arena-field {
+	color: var(--arena-text-primary);
+	background-color: var(--arena-control-background);
+	border-left-color: var(--arena-panel-border);
+	border-right-color: var(--arena-panel-border);
+	border-top-color: var(--arena-panel-border);
+	border-bottom-color: var(--arena-panel-border);
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	font-size: 15px;
+	min-height: 30px;
+}
+
+.arena-field .unity-base-text-field__input {
+	color: var(--arena-text-primary);
+	background-color: var(--arena-control-background);
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+.arena-button {
+	color: var(--arena-text-primary);
+	background-color: var(--arena-control-background);
+	border-left-color: var(--arena-panel-border);
+	border-right-color: var(--arena-panel-border);
+	border-top-color: var(--arena-panel-border);
+	border-bottom-color: var(--arena-panel-border);
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	font-size: 14px;
+	-unity-font-style: bold;
+	min-height: 32px;
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+.arena-button:hover {
+	background-color: var(--arena-control-hover);
+}
+
+.arena-button:active {
+	background-color: var(--arena-control-active);
+}
+
+.arena-scroll-view .unity-scroll-view__content-container {
+	flex-grow: 1;
+}

@@ -1,6 +1,7 @@
 using MultiplayerDemo.Client.Ui;
 using NUnit.Framework;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace MultiplayerDemo.Client.Tests {
 	public sealed class ArenaHudLogicTests {
@@ -47,6 +48,23 @@ namespace MultiplayerDemo.Client.Tests {
 			Assert.AreEqual(0.70710678f, move.x, 1e-5f);
 			Assert.AreEqual(0.70710678f, move.y, 1e-5f);
 			Assert.AreEqual(1f, math.length(move), 1e-5f);
+		}
+
+		[TestCase(false, false, false, false)]
+		[TestCase(false, true, false, true)]
+		[TestCase(false, true, true, false)]
+		[TestCase(true, false, false, true)]
+		[TestCase(true, false, true, true)]
+		public void FireDecisionOnlyBlocksMouseOverUi(
+			bool spacePressed, bool mousePressed, bool pointerOverBlockingUi, bool expected) {
+			Assert.AreEqual(expected, ArenaInput.ShouldFire(spacePressed, mousePressed, pointerOverBlockingUi));
+		}
+
+		[Test]
+		public void MousePositionIsConvertedFromBottomLeftToTopLeftOrigin() {
+			Assert.AreEqual(
+				new Vector2(25f, 80f),
+				ArenaInput.BuildPanelScreenPosition(new Vector2(25f, 20f), 100f));
 		}
 	}
 }
